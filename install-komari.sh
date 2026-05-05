@@ -31,13 +31,14 @@ SERVICE_NAME="komari"
 BINARY_PATH="$INSTALL_DIR/komari"
 DEFAULT_PORT="25774"
 LISTEN_PORT=""
+REPO_SLUG="ZY4869/komari"
 
 # Show banner
 show_banner() {
     clear
     echo "=============================================================="
     echo "            Komari Monitoring System Installer"
-    echo "       https://github.com/komari-monitor/komari"
+    echo "       https://github.com/${REPO_SLUG}"
     echo "=============================================================="
     echo
 }
@@ -149,7 +150,7 @@ install_binary() {
     mkdir -p "$DATA_DIR"
 
     local file_name="komari-linux-${arch}"
-    local download_url="https://github.com/komari-monitor/komari/releases/latest/download/${file_name}"
+    local download_url="https://github.com/${REPO_SLUG}/releases/latest/download/${file_name}"
 
     log_step "下载 Komari 二进制文件..."
     log_info "URL: $download_url"
@@ -262,7 +263,7 @@ upgrade_komari() {
 
     local arch=$(detect_arch)
     local file_name="komari-linux-${arch}"
-    local download_url="https://github.com/komari-monitor/komari/releases/latest/download/${file_name}"
+    local download_url="https://github.com/${REPO_SLUG}/releases/latest/download/${file_name}"
 
     log_step "下载最新版本..."
     if ! curl -L -o "$BINARY_PATH" "$download_url"; then

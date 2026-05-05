@@ -454,6 +454,7 @@ func GetDBInstance() *gorm.DB {
 			&models.Log{},
 			&models.Clipboard{},
 			&models.LoadNotification{},
+			&models.MixedNotification{},
 			&models.OfflineNotification{},
 			&models.PingRecord{},
 			&models.PingTask{},

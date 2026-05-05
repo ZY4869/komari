@@ -328,6 +328,13 @@ func RunServer() {
 				loadAlertGroup.POST("/delete", notification.DeleteLoadNotification)
 				loadAlertGroup.POST("/edit", notification.EditLoadNotification)
 			}
+			mixedAlertGroup := notificationGroup.Group("/mixed")
+			{
+				mixedAlertGroup.GET("/", notification.GetAllMixedNotifications)
+				mixedAlertGroup.POST("/add", notification.AddMixedNotification)
+				mixedAlertGroup.POST("/delete", notification.DeleteMixedNotification)
+				mixedAlertGroup.POST("/edit", notification.EditMixedNotification)
+			}
 		}
 
 		pingTaskGroup := adminAuthrized.Group("/ping")
@@ -396,6 +403,7 @@ func InitDatabase() {
 func DoScheduledWork() {
 	tasks.ReloadPingSchedule()
 	d_notification.ReloadLoadNotificationSchedule()
+	d_notification.ReloadMixedNotificationSchedule()
 	ticker := time.NewTicker(time.Minute * 30)
 	minute := time.NewTicker(60 * time.Second)
 	//records.DeleteRecordBefore(time.Now().Add(-time.Hour * 24 * 30))
@@ -416,6 +424,7 @@ func DoScheduledWork() {
 				records.DeleteAll()
 				tasks.DeleteAllPingRecords()
 			}
+			go notifier.MaybeSendDailyTrafficSummary(time.Now())
 			// 每分钟检查一次流量提醒
 			go notifier.CheckTraffic()
 		}
