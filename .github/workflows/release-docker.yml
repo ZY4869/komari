@@ -22,10 +22,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "23"
 
@@ -47,15 +47,14 @@ jobs:
           if [ -f public/defaultTheme/perview.png ] && [ ! -f public/defaultTheme/preview.png ]; then cp -f public/defaultTheme/perview.png public/defaultTheme/preview.png; fi
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version: "1.23"
 
       - name: Install Zig
-        run: |
-          wget https://ziglang.org/download/0.14.1/zig-x86_64-linux-0.14.1.tar.xz
-          sudo tar -C /usr/local -Jxf zig-x86_64-linux-0.14.1.tar.xz
-          echo "PATH=$PATH:/usr/local/zig-x86_64-linux-0.14.1" >> $GITHUB_ENV
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.14.1
 
       - name: Build static binaries for multi-arch
         env:
