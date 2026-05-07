@@ -1,14 +1,31 @@
+FROM --platform=$TARGETPLATFORM golang:1.23-alpine AS builder
+
+ARG TARGETOS
+ARG TARGETARCH
+ARG VERSION=dev
+ARG VERSION_HASH=unknown
+
+WORKDIR /src
+
+RUN apk add --no-cache build-base sqlite-dev tzdata
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=1 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -trimpath \
+    -ldflags="-s -w -X github.com/komari-monitor/komari/utils.CurrentVersion=${VERSION} -X github.com/komari-monitor/komari/utils.VersionHash=${VERSION_HASH}" \
+    -o /out/komari
+
 FROM alpine:3.21
 
 WORKDIR /app
 
-# Docker buildx 会在构建时自动填充这些变量
-ARG TARGETOS
-ARG TARGETARCH
-
 RUN apk add --no-cache tzdata
 
-COPY komari-${TARGETOS}-${TARGETARCH} /app/komari
+COPY --from=builder /out/komari /app/komari
 
 RUN chmod +x /app/komari
 
