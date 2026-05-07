@@ -91,9 +91,7 @@ func calculateDailyTrafficUsage(client models.Client, start, end time.Time) (Dai
 		return DailyTrafficUsage{Client: client}, nil
 	}
 
-	sort.Slice(records, func(i, j int) bool {
-		return records[i].Time.ToTime().Before(records[j].Time.ToTime())
-	})
+	sortDailyTrafficRecords(records)
 
 	prev, err := recordsdb.GetLatestRecordBefore(client.UUID, start)
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -111,18 +109,14 @@ func calculateDailyTrafficUsage(client models.Client, start, end time.Time) (Dai
 		records = records[1:]
 	}
 
-	var upload int64
-	var download int64
+	upValues := make([]int64, 0, len(records))
+	downValues := make([]int64, 0, len(records))
 	for _, record := range records {
-		if delta := trafficDelta(lastUp, record.NetTotalUp); delta > 0 {
-			upload += delta
-		}
-		if delta := trafficDelta(lastDown, record.NetTotalDown); delta > 0 {
-			download += delta
-		}
-		lastUp = record.NetTotalUp
-		lastDown = record.NetTotalDown
+		upValues = append(upValues, record.NetTotalUp)
+		downValues = append(downValues, record.NetTotalDown)
 	}
+	upload := calculateCounterUsage(lastUp, upValues)
+	download := calculateCounterUsage(lastDown, downValues)
 
 	return DailyTrafficUsage{
 		Client:   client,
